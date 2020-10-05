@@ -1,36 +1,57 @@
 #include <efiio.h>
 
+#include <stdarg.h>
+#include <efistring.h>
 #include <efisystab.h>
+#include <efiutils.h>
 
-void print_string(CHAR16 *str) {
-    system_table->ConOut->EFI_OUT_PUT_STRING(system_table->ConOut, str);
+EFI_SIMPLE_TEXT_INPUT_PROTOCOL *ConIn;
+EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *ConOut;
+
+void efi_io_initialize() {
+    ConIn = get_system_table()->ConIn;
+    ConOut = get_system_table()->ConOut;
 }
 
-void print_string_n(CHAR16 *str) {
-    print_string(str);
-    print_string(L"\r\n");
+void efi_puts(CHAR16 *str) {
+    ConOut->EFI_OUT_PUT_STRING(ConOut, str);
 }
 
-void print_char(CHAR16 c) {
+void efi_putsn(CHAR16 *str) {
+    efi_puts(str);
+    efi_puts(L"\r\n");
+}
+
+void efi_putc(CHAR16 c) {
     CHAR16 buf[2] = {c};
-    print_string(buf);
+    efi_puts(buf);
 }
 
-EFI_INPUT_KEY get_input_key() {
+int efi_printf(const CHAR16 *format, ...) {
+    CHAR16 buf[1024];
+    va_list args;
+    va_start(args, format);
+    int len = efi_vsprintf(buf, format, args);
+    va_end(args);
+    efi_puts(buf);
+    return len;
+}
+
+EFI_INPUT_KEY efi_get_input_key() {
     EFI_INPUT_KEY key;
     uint64_t index;
-    system_table->BootServices->EFI_WAIT_FOR_EVENT(1, &(system_table->ConIn->WaitForKey), &index);
-    while (system_table->ConIn->EFI_INPUT_READ_KEY(system_table->ConIn, &key));
+    get_system_table()->BootServices->EFI_WAIT_FOR_EVENT(1, &(ConIn->WaitForKey), &index);
+    while (ConIn->EFI_INPUT_READ_KEY(ConIn, &key));
     return key;
 }
 
-uint64_t gets(CHAR16 *buf, uint64_t buf_size) {
+uint64_t efi_gets(CHAR16 *buf, uint64_t buf_size) {
     uint64_t i;
     for (i = 0; i < buf_size - 1;) {
-        buf[i] = get_input_key().UnicodeChar;
-        print_char(buf[i]);
+        buf[i] = efi_get_input_key().UnicodeChar;
+        efi_putc(buf[i]);
         if (buf[i] == L'\r' || buf[i] == L'\n') {
-            print_string_n(L"");
+            efi_putsn(L"");
             break;
         }
         i++;
@@ -38,4 +59,12 @@ uint64_t gets(CHAR16 *buf, uint64_t buf_size) {
     buf[i] = L'\0';
 
     return i;
+}
+
+void efi_clear_screen() {
+    ConOut->EFI_TEXT_CLEAR_SCREEN(ConOut);
+}
+
+void efi_set_largest_screen_mode() {
+    ConOut->EFI_TEXT_SET_MODE(ConOut, get_largest_screen_mode());
 }

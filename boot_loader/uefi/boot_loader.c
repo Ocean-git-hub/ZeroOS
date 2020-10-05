@@ -1,12 +1,15 @@
 #include <efi/efi.h>
 #include <efilib.h>
 
-EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *_system_table) {
-    init_systab(_system_table);
-    init_located_protocol();
-    system_table->ConOut->EFI_TEXT_SET_MODE(system_table->ConOut, get_largest_screen_mode());
-    system_table->ConOut->EFI_TEXT_CLEAR_SCREEN(system_table->ConOut);
-    print_string(L"Hello, UEFI!");
-    while (1);
+EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
+    efi_lib_initialize(system_table);
+    efi_set_largest_screen_mode();
+    efi_clear_screen();
+    EFI_TIME time = efi_get_datetime();
+    efi_printf(L"ZeroOS Boot Loader [FirmwareVendor: %s(%s)] [%u/%u/%u %02u:%02u]\n\r",
+               efi_get_firmware_vendor(), efi_get_uefi_version(),
+               time.Year, time.Month, time.Day, time.Hour, time.Minute);
+    efi_get_input_key();
+    efi_shutdown();
     return EFI_SUCCESS;
 }

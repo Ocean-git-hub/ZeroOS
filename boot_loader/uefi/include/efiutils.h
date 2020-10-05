@@ -4,28 +4,25 @@
 #include <windef.h>
 #include <winnt.h>
 
-#include "efi/efidef.h"
-#include "efi/efistruct.h"
-#include "stdbool.h"
+#include <efi/efi.h>
+#include <stdbool.h>
 
-void hex_dump(uint64_t value, uint8_t digit);
-
-void dump_status(uint64_t status, bool linefeed);
-
-void print_decimal(uint64_t value, uint8_t digit, bool linefeed);
-
-void check_error(EFI_STATUS status, CHAR16 *message);
+void efi_check_error(EFI_STATUS status, CHAR16 *message);
 
 uint64_t get_largest_screen_mode();
 
-void shutdown();
+CHAR16 *efi_get_uefi_version();
 
-void print_boot_info();
+void efi_shutdown();
 
-bool is_equal_guid(EFI_GUID *guid1, EFI_GUID *guid2);
+EFI_TIME efi_get_datetime();
 
-void *get_configuration_table(EFI_GUID *guid);
+CHAR16 *efi_get_firmware_vendor();
 
-void get_memory_type_name(EFI_MEMORY_TYPE type, CHAR16 *buf);
+bool efi_is_equal_guid(EFI_GUID *guid1, EFI_GUID *guid2);
+
+void *efi_get_configuration_table(EFI_GUID *guid);
+
+void efi_get_memory_type_name(EFI_MEMORY_TYPE type, CHAR16 *buf);
 
 #endif //ZEROOS_UTILS_H

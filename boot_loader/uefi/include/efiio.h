@@ -3,14 +3,22 @@
 
 #include <efi/efi.h>
 
-void print_string(CHAR16 *str);
+void efi_io_initialize();
 
-void print_string_n(CHAR16 *str);
+void efi_puts(CHAR16 *str);
 
-void print_char(CHAR16 c);
+void efi_putsn(CHAR16 *str);
 
-EFI_INPUT_KEY get_input_key();
+void efi_putc(CHAR16 c);
 
-uint64_t gets(CHAR16 *buf, uint64_t buf_size);
+int efi_printf(const CHAR16 *format, ...);
+
+EFI_INPUT_KEY efi_get_input_key();
+
+uint64_t efi_gets(CHAR16 *buf, uint64_t buf_size);
+
+void efi_clear_screen();
+
+void efi_set_largest_screen_mode();
 
 #endif //ZEROOS_EFIIO_H

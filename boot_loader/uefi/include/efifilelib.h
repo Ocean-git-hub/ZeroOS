@@ -3,10 +3,8 @@
 
 #include <efi/efi.h>
 
-void get_root_file_protocol(EFI_FILE_PROTOCOL **root);
+EFI_FILE_INFO *efi_get_file_info(CHAR16 *file_name);
 
-EFI_FILE_INFO *get_file_info(CHAR16 *file_name);
-
-void read_file_to_address(uint64_t address, CHAR16 *file_name);
+void read_file_to_address(CHAR16 *file_name, uint64_t address);
 
 #endif //ZEROOS_EFIFILELIB_H

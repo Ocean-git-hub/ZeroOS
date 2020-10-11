@@ -18,7 +18,7 @@ EFI_FILE_INFO *efi_get_file_info(CHAR16 *file_name) {
 
     EFI_FILE_PROTOCOL *file_protocol;
     efi_check_error(root->EFI_FILE_OPEN(root, &file_protocol, file_name, EFI_FILE_MODE_READ, 0),
-                    L"read_file_to_address");
+                    L"efi_read_file_to_address");
 
     EFI_GUID file_info_guid = EFI_FILE_INFO_ID;
     UINTN buffer_size = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * MAX_FILE_NAME_SIZE;
@@ -33,11 +33,11 @@ EFI_FILE_INFO *efi_get_file_info(CHAR16 *file_name) {
     return file_info;
 }
 
-void read_file_to_address(CHAR16 *file_name, uint64_t address) {
+void efi_read_file_to_address(CHAR16 *file_name, uint64_t address) {
     EFI_FILE_PROTOCOL *root;
     get_root_file_protocol(&root);
     EFI_FILE_PROTOCOL *file;
-    efi_check_error(root->EFI_FILE_OPEN(root, &file, file_name, EFI_FILE_MODE_READ, 0), L"read_file_to_address");
+    efi_check_error(root->EFI_FILE_OPEN(root, &file, file_name, EFI_FILE_MODE_READ, 0), L"efi_read_file_to_address");
 
     EFI_FILE_INFO *file_info = efi_get_file_info(file_name);
     uint64_t file_size = file_info->FileSize;

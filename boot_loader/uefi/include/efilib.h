@@ -7,6 +7,8 @@
 #include <efisystab.h>
 #include <efistring.h>
 #include <efiutils.h>
+#include <efimemory.h>
+#include <efimemorymap.h>
 
 static void efi_lib_initialize(EFI_SYSTEM_TABLE *system_table) {
     efi_system_table_initilize(system_table);

@@ -54,78 +54,78 @@ int64_t find_string_r(CHAR16 *str, CHAR16 *token) {
     return -1;
 }
 
-uint8_t s_print_unsigned_decimal(uint64_t value, CHAR16 *s) {
+uint8_t efi_s_print_unsigned_decimal(uint64_t value, CHAR16 *s) {
     uint8_t digit = 1;
     uint64_t value_tmp = value;
     while ((value_tmp /= 10) != 0)
         digit++;
-    s[digit] = '\0';
+    s[digit] = 0;
     for (int16_t i = digit - 1; i >= 0; i--) {
-        s[i] = '0' + value % 10;
+        s[i] = L'0' + value % 10;
         value /= 10;
     }
     return digit;
 }
 
-uint8_t s_print_decimal(uint64_t value, CHAR16 *s) {
+uint8_t efi_s_print_decimal(uint64_t value, CHAR16 *s) {
     CHAR16 is_signed = value >> 63U;
     if (is_signed) {
-        *s++ = '-';
+        *s++ = L'-';
         value *= -1;
     }
-    return s_print_unsigned_decimal(value, s) + is_signed;
+    return efi_s_print_unsigned_decimal(value, s) + is_signed;
 }
 
-int8_t s_print_hex64(uint64_t value, CHAR16 *s) {
+int8_t efi_s_print_hex64(uint64_t value, CHAR16 *s) {
     CHAR16 tmp[17] = {0}, unit_val;
     int8_t i;
     uint8_t j = 0;
     for (i = 0; i < 16 && value > 0; i++) {
         unit_val = value & 0xfU;
-        tmp[i] = unit_val + ((unit_val < 0xa) ? '0' : 'A' - 0xa);
+        tmp[i] = unit_val + ((unit_val < 0xa) ? L'0' : L'A' - 0xa);
         value >>= 4U;
     }
     if (i == 0)
-        s[j++] = '0';
+        s[j++] = L'0';
     while (i > 0)
         s[j++] = tmp[--i];
     s[j] = '\0';
     return j;
 }
 
-int8_t s_print_hex32(uint32_t value, CHAR16 *s) {
+int8_t efi_s_print_hex32(uint32_t value, CHAR16 *s) {
     CHAR16 tmp[9] = {0}, unit_val;
     int8_t i;
     uint8_t j = 0;
     for (i = 0; i < 8 && value > 0; i++) {
         unit_val = value & 0xfU;
-        tmp[i] = unit_val + ((unit_val < 0xa) ? '0' : 'A' - 0xa);
+        tmp[i] = unit_val + ((unit_val < 0xa) ? L'0' : L'A' - 0xa);
         value >>= 4U;
     }
     if (i == 0)
-        s[j++] = '0';
+        s[j++] = L'0';
     while (i > 0)
         s[j++] = tmp[--i];
     s[j] = '\0';
     return j;
 }
 
-void s_print_double(double value, CHAR16 *s) {
+void efi_s_print_double(double value, CHAR16 *s) {
     uint64_t bits = *(uint64_t *) &value;
     if (bits >> 63U) {
-        *s++ = '-';
+        *s++ = L'-';
         value *= -1;
     }
     uint64_t before_decimal_point = value;
-    s += s_print_unsigned_decimal(before_decimal_point, s);
-    *s++ = '.';
+    s += efi_s_print_unsigned_decimal(before_decimal_point, s);
+    *s++ = L'.';
     uint64_t after_decimal_point6 = value * 1000000 - before_decimal_point * 1000000 + 1000000;
-    s_print_unsigned_decimal(after_decimal_point6, s);
+    efi_s_print_unsigned_decimal(after_decimal_point6, s);
     for (int i = 0; i < 7; ++i)
         s[i] = s[i + 1];
 }
 
-int64_t power(uint8_t x, uint8_t y) {
+int64_t efi_power(uint8_t x, uint8_t y) {
     uint8_t ret_x = 1;
     for (uint8_t i = 0; i < y; ++i)
         ret_x *= x;
@@ -137,74 +137,75 @@ int efi_vsprintf(CHAR16 *s, const CHAR16 *format, va_list args) {
     uint8_t reading_zero_buf_index, reading_zero;
     int8_t n_reading_zero;
     while (*format != '\0') {
-        if (*format != '%') {
+        if (*format != L'%') {
             *s++ = *format++;
             continue;
-        } else if (format[1] == '%') {
+        } else if (format[1] == L'%') {
             *s++ = *format++;
             format++;
             continue;
         }
         format++;
         reading_zero = reading_zero_buf_index = 0;
-        if (*format == '0') {
+        if (*format == L'0') {
             format++;
-            while ('0' <= *format && *format <= '9')
+            while (L'0' <= *format && *format <= L'9')
                 if (reading_zero_buf_index < _READING_ZERO_BUFFER_SIZE)
                     reading_zero_buf[reading_zero_buf_index++] = *format++;
             for (uint8_t i = 0; i < reading_zero_buf_index; ++i)
-                reading_zero += (reading_zero_buf[reading_zero_buf_index - i - 1] - '0') * power(10, i);
+                reading_zero += (reading_zero_buf[reading_zero_buf_index - i - 1] - '0') * efi_power(10, i);
         }
         switch (*format) {
-            case 'c':
+            case L'c':
                 *s++ = va_arg(args, int32_t);
                 break;
-            case 's':
+            case L's':
                 arg_char = va_arg(args, CHAR16*);
                 efi_strcpy(s, arg_char);
                 s += efi_strlen(arg_char);
                 break;
-            case 'f':
-                s_print_double(va_arg(args, double), buf);
+            case L'f':
+                efi_s_print_double(va_arg(args, double), buf);
                 efi_strcpy(s, buf);
                 s += efi_strlen(buf);
                 break;
             default:
                 switch (*format) {
-                    case 'd':
-                        n_reading_zero = reading_zero - s_print_decimal(va_arg(args, int32_t), buf);
+                    case L'd':
+                        n_reading_zero = reading_zero - efi_s_print_decimal(va_arg(args, int32_t), buf);
                         break;
-                    case 'u':
-                        n_reading_zero = reading_zero - s_print_unsigned_decimal(va_arg(args, int32_t), buf);
+                    case L'u':
+                        n_reading_zero = reading_zero - efi_s_print_unsigned_decimal(va_arg(args, int32_t), buf);
                         break;
-                    case 'x':
-                        n_reading_zero = reading_zero - s_print_hex32(va_arg(args, int32_t), buf);
+                    case L'x':
+                        n_reading_zero = reading_zero - efi_s_print_hex32(va_arg(args, int32_t), buf);
                         break;
-                    case 'l':
+                    case L'l':
                         switch (*++format) {
-                            case 'd':
-                                n_reading_zero = reading_zero - s_print_decimal(va_arg(args, int64_t), buf);
+                            case L'd':
+                                n_reading_zero = reading_zero - efi_s_print_decimal(va_arg(args, int64_t), buf);
                                 break;
-                            case 'u':
-                                n_reading_zero = reading_zero - s_print_unsigned_decimal(va_arg(args, int64_t), buf);
+                            case L'u':
+                                n_reading_zero =
+                                        reading_zero - efi_s_print_unsigned_decimal(va_arg(args, int64_t), buf);
                                 break;
-                            case 'x':
-                                n_reading_zero = reading_zero - s_print_hex64(va_arg(args, int64_t), buf);
+                            case L'x':
+                                n_reading_zero = reading_zero - efi_s_print_hex64(va_arg(args, int64_t), buf);
                                 break;
                             default:
-                                *s++ = '%';
-                                *s++ = 'l';
+                                *s++ = L'%';
+                                *s++ = L'l';
                                 *s++ = *format++;
                                 continue;
                         }
                         break;
                     default:
-                        *s++ = '%';
+                        *s++ = L'%';
                         *s++ = *format++;
                         continue;
                 }
                 for (int j = 0; j < n_reading_zero; ++j)
-                    *s++ = '0';
+                    *s++ = L'0';
                 efi_strcpy(s, buf);
                 s += efi_strlen(buf);
         }

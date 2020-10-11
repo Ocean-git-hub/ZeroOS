@@ -6,6 +6,7 @@
 #include <efisystab.h>
 #include <efiio.h>
 #include <efistring.h>
+#include <efiprotocol.h>
 
 CHAR16 uefi_version[15] = {};
 
@@ -157,4 +158,20 @@ void efi_get_memory_type_name(EFI_MEMORY_TYPE type, CHAR16 *buf) {
         default:
             break;
     }
+}
+
+EFI_FRAME_BUFFER_INFO efi_get_frame_buffer_info() {
+    return (EFI_FRAME_BUFFER_INFO) {
+            .frameBufferBase=graphics_output_protocol->Mode->FrameBufferBase,
+            .frameBufferSize=graphics_output_protocol->Mode->FrameBufferSize,
+            .screenHeight=graphics_output_protocol->Mode->Info->VerticalResolution,
+            .screenWidth=graphics_output_protocol->Mode->Info->HorizontalResolution};
+}
+
+void efi_exit_boot_services(EFI_MEMORY_MAP *memory_map, void *image_handle) {
+    EFI_STATUS status;
+    do {
+        efi_get_memory_map(memory_map);
+        status = get_system_table()->BootServices->EFI_EXIT_BOOT_SERVICES(image_handle, memory_map->mapKey);
+    } while (status != EFI_SUCCESS);
 }

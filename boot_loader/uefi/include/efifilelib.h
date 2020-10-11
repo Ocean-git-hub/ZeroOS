@@ -5,6 +5,6 @@
 
 EFI_FILE_INFO *efi_get_file_info(CHAR16 *file_name);
 
-void read_file_to_address(CHAR16 *file_name, uint64_t address);
+void efi_read_file_to_address(CHAR16 *file_name, uint64_t address);
 
 #endif //ZEROOS_EFIFILELIB_H

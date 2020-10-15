@@ -2,6 +2,7 @@
 #include <zero/vram.h>
 #include <zero/font.h>
 
+#include <stdio.h>
 #include <string.h>
 
 size_t terminal_row;

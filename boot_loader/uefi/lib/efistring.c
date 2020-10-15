@@ -111,7 +111,8 @@ int8_t efi_s_print_hex32(uint32_t value, CHAR16 *s) {
 }
 
 void efi_s_print_double(double value, CHAR16 *s) {
-    uint64_t bits = *(uint64_t *) &value;
+    char *tmp = (char *) &value;
+    uint64_t bits = *(uint64_t *) tmp;
     if (bits >> 63U) {
         *s++ = L'-';
         value *= -1;

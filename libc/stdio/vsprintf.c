@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -61,7 +62,8 @@ int8_t s_print_hex32(uint32_t value, char *s) {
 }
 
 void s_print_double(double value, char *s) {
-    uint64_t bits = *(uint64_t *) &value;
+    char *tmp = (char *) &value;
+    uint64_t bits = *(uint64_t *) tmp;
     if (bits >> 63U) {
         *s++ = '-';
         value *= -1;

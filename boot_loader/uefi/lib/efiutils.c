@@ -22,7 +22,7 @@ void efi_check_error(EFI_STATUS status, CHAR16 *message) {
 
 uint64_t get_largest_screen_mode() {
     uint64_t columns = 0, rows = 0, mode = 0;
-    for (uint32_t i = 0; i < get_system_table()->ConOut->Mode->MaxMode; i++) {
+    for (int32_t i = 0; i < get_system_table()->ConOut->Mode->MaxMode; i++) {
         uint64_t c, r;
         EFI_STATUS Status = get_system_table()->ConOut->EFI_TEXT_QUERY_MODE(get_system_table()->ConOut, i, &c, &r);
         if (Status == EFI_SUCCESS) {

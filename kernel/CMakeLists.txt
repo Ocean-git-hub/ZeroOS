@@ -1,9 +1,11 @@
 include_directories(include)
+include_directories(../libc/include)
 set(CMAKE_C_COMPILER ${NATIVE_GCC})
 ENABLE_LANGUAGE(ASM-ATT)
 
 FILE(GLOB PLATFORM_SRCS arch/${ARCH}/*.s arch/${ARCH}/*.c)
 FILE(GLOB KERNEL_SRCS */*.c)
+FILE(GLOB LIBC_SRCS ../libc/*/*.c)
 add_executable(Kernel ${PLATFORM_SRCS} ${KERNEL_SRCS} ${LIBC_SRCS})
 set(CMAKE_C_FLAGS "-O2 -mno-red-zone -ffreestanding -Wall -Wextra -Wno-missing-field-initializers")
 target_link_options(Kernel PUBLIC -T ${CMAKE_CURRENT_SOURCE_DIR}/arch/${ARCH}/kernel.ld -nostdlib -lgcc)

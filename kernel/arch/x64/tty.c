@@ -76,7 +76,7 @@ void terminal_puts(const char *s) {
     terminal_putc('\n');
 }
 
-int printf(const char *format, ...) {
+int kprintf(const char *format, ...) {
     char buffer[1024];
     va_list args;
     va_start(args, format);

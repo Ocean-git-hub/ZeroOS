@@ -13,6 +13,6 @@ void terminal_write_string(const char *s);
 
 void terminal_puts(const char *s);
 
-int printf(const char *format, ...);
+int kprintf(const char *format, ...);
 
 #endif //ZEROOS_TTY_H

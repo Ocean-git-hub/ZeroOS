@@ -6,7 +6,7 @@
 
 typedef struct {
     EFI_MEMORY_DESCRIPTOR *descriptorPointerBase;
-    uint64_t memoryMapSize, mapKey, descriptorSize, totalMemory;
+    uint64_t memoryMapSize, mapKey, descriptorSize;
 } EFI_MEMORY_MAP;
 
 void efi_get_memory_map(EFI_MEMORY_MAP *memory_map);

@@ -1,3 +1,5 @@
+.extern gdt_initialize
+
 .section .bss
 .align 16
 .skip 16384
@@ -9,10 +11,11 @@ _start:
     push %rdi
     sub %rsp, 8
 
-    // do something
+    call gdt_initialize
 
     add %rsp, 8
     pop %rdi
+
     call kernel_main
 
     cli

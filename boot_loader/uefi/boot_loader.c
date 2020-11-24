@@ -10,7 +10,14 @@ typedef struct {
 } KernelHeader;
 
 typedef struct {
+    uintptr_t kernelStart;
+    uintptr_t kernelSize;
+} KernelInfo;
+
+typedef struct {
     EFI_FRAME_BUFFER_INFO frameBufferInfo;
+    EFI_MEMORY_MAP memoryMap;
+    KernelInfo kernelInfo;
 } BootParameter;
 
 EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
@@ -39,10 +46,12 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
     uint64_t stack_pointer = kernel_start_address + kernel_header->bssEnd;
     efi_printf(L"stackPointer: 0x%016lx\r\n", stack_pointer);
 
-    BootParameter bootParameter = {.frameBufferInfo=efi_get_frame_buffer_info()};
+    BootParameter bootParameter = {
+            .frameBufferInfo=efi_get_frame_buffer_info(),
+            .kernelInfo.kernelStart=kernel_start_address,
+            .kernelInfo.kernelSize=kernel_size};
 
-    EFI_MEMORY_MAP memoryMap;
-    efi_exit_boot_services(&memoryMap, image_handle);
+    efi_exit_boot_services(&bootParameter.memoryMap, image_handle);
 
     __asm__ volatile ("mov %0, %%rsp\r\n"
                       "mov %1, %%rdi\r\n"
